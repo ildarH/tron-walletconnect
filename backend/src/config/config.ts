@@ -8,7 +8,7 @@ const envPath = join(__dirname, '../../.env')
 
 dotenv.config({ path: envPath })
 
-const port = process.env.PORT || 3001
+const port = process.env.PORT || 3000
 const host = process.env.HOST || 'localhost'
 const baseUrl = process.env.BASE_URL ? 
   `${process.env.BASE_URL}:${port}` : 
