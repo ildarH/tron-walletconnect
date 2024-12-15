@@ -5,6 +5,7 @@ import { config } from './config/config';
 import { specs } from './config/swagger';
 import { errorMiddleware } from './middleware/error.middleware';
 import tronRoutes from './modules/tron/tron.routes';
+
 import { corsOptions } from './config/cors';
 
 const app = express();
