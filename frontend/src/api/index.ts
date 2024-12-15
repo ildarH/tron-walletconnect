@@ -1,5 +1,7 @@
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+
 export async function getSignMessage (walletAddress: string): Promise<{message: string}> {
-    const response = await fetch('http://localhost:3001/get-message', {
+    const response = await fetch(`${BASE_URL}/api/tron/get-message`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -8,8 +10,8 @@ export async function getSignMessage (walletAddress: string): Promise<{message: 
     return response.json();
 }
 
-export async function verifySignMessage (walletAddress: string, message: string, signature: string): Promise<{isValid: boolean}> {
-    const response = await fetch('http://localhost:3001/verify-signature', {
+export async function verifySignMessage (walletAddress: string, message: string, signature: string): Promise<{isValid: boolean; message: string}> {
+    const response = await fetch(`${BASE_URL}/api/tron/verify-signature`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -18,10 +20,8 @@ export async function verifySignMessage (walletAddress: string, message: string,
     });
     const data = await response.json();
 
-    if (response.ok) {
-        console.log('Успешная верификация:', data.message);
-        // Здесь можно произвести вход или другие действия
-    } else {
-        console.error('Ошибка верификации:', data.error);
-    }
+    return { 
+        isValid: response.ok,
+        message: data.message 
+    };
 }

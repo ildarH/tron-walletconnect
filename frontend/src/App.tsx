@@ -3,6 +3,7 @@ import { WalletConnectModal } from "@walletconnect/modal";
 import { useEffect, useState } from "react";
 import { TronService, TronChains } from "./utils/tronService";
 import {getSignMessage, verifySignMessage} from "./api";
+import { CopyButton } from './components/CopyButton'
 
 const projectId = import.meta.env.VITE_PROJECT_ID;
 
@@ -20,6 +21,13 @@ const modal = new WalletConnectModal({
   chains,
 });
 
+type VerificationDetails = {
+  status: 'idle' | 'success' | 'error';
+  message?: string;
+  signature?: string;
+  signedMessage?: string;
+}
+
 const App = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState("");
@@ -29,6 +37,10 @@ const App = () => {
   const [provider, setProvider] = useState<UniversalProvider | null>(null);
   const [tronService, setTronService] = useState<TronService | null>(null);
   const [signMessage, setSignMessage] = useState<string | null>(null);
+  const [isSigningMessage, setIsSigningMessage] = useState(false);
+  const [verificationResult, setVerificationResult] = useState<VerificationDetails>({ 
+    status: 'idle' 
+  });
 
 
   // 5. initialize Universal Provider onLoad
@@ -117,20 +129,38 @@ const App = () => {
 
   // 10. handle get Balance, signMessage and sendTransaction
   const handleSign = async () => {
-    const tronWeb = tronService!.getTronWeb()
-
+    setIsSigningMessage(true);
+    setVerificationResult({ status: 'idle' });
+    
     try {
-      const res = await tronService!.signMessage(
-          signMessage!,
-          address!
+      const tronWeb = tronService!.getTronWeb();
+      const signResult = await tronService!.signMessage(
+        signMessage!,
+        address!
       );
 
-      console.log("result sign: ",res);
+      console.log("result sign: ", signResult);
 
-      await verifySignMessage(address!, signMessage!, res.result);
-
+      const verifyResult = await verifySignMessage(
+        address!, 
+        signMessage!, 
+        signResult.result
+      );
+      
+      setVerificationResult({
+        status: verifyResult.isValid ? 'success' : 'error',
+        message: verifyResult.message,
+        signature: signResult.result,
+        signedMessage: signMessage
+      });
     } catch (error) {
-        console.log("error sign: ", error);
+      console.log("error sign: ", error);
+      setVerificationResult({
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Failed to sign message'
+      });
+    } finally {
+      setIsSigningMessage(false);
     }
   };
 
@@ -151,16 +181,51 @@ const App = () => {
       <h2>WalletConnect + TRON</h2>
       {isConnected ? (
         <>
-          <p>
-            <b>Address: </b>{address}<br />
+          <p className="address-info">
+            <b>Address: </b>
+            <span className="monospace-text">
+              {address}
+              <CopyButton text={address} />
+            </span>
+            <br />
             <b>Balance: </b>{balance}<br />
           </p>
           <div className="btn-container">
-          <button onClick={handleGetBalance}>get Balance</button>
-            <button disabled={!signMessage} onClick={handleSign}>Sign MSG</button>
-            <button onClick={handleSendTransaction}>Send Transaction</button>
+            {/* <button onClick={handleGetBalance}>Get Balance</button> */}
+            <button 
+              disabled={!signMessage || isSigningMessage} 
+              onClick={handleSign}
+            >
+              {isSigningMessage ? 'Signing...' : 'Sign MSG'}
+            </button>
+            {/* <button onClick={handleSendTransaction}>Send Transaction</button> */}
             <button onClick={disconnect}>Disconnect</button>
           </div>
+          {verificationResult.status !== 'idle' && (
+            <div className={`verification-result ${verificationResult.status}`}>
+              <div className="verification-message">
+                {verificationResult.message}
+              </div>
+              {verificationResult.status === 'success' && (
+                <div className="verification-details">
+                  <div className="detail-item">
+                    <span>Signed Message:</span>
+                    <div className="code-container">
+                      <code>{verificationResult.signedMessage}</code>
+                      <CopyButton text={verificationResult.signedMessage || ''} />
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <span>Signature:</span>
+                    <div className="code-container">
+                      <code>{verificationResult.signature}</code>
+                      <CopyButton text={verificationResult.signature || ''} />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </>
       ) : (
         <button onClick={connect}>Connect</button>
