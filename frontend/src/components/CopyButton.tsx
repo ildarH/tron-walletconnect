@@ -1,15 +1,15 @@
 import { useState } from 'react'
 
 type CopyButtonProps = {
-  text: string
+  text: string | null | undefined
   className?: string
 }
 
-export function CopyButton({ text, className = '' }: CopyButtonProps) {
+export function CopyButton({ text = '', className = '' }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(text)
+    await navigator.clipboard.writeText(text || '')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
