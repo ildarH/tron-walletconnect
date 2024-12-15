@@ -2,6 +2,7 @@ import UniversalProvider from "@walletconnect/universal-provider";
 import { WalletConnectModal } from "@walletconnect/modal";
 import { useEffect, useState } from "react";
 import { TronService, TronChains } from "./utils/tronService";
+import {getSignMessage, verifySignMessage} from "./api";
 
 const projectId = import.meta.env.VITE_PROJECT_ID;
 
@@ -27,6 +28,7 @@ const App = () => {
   // 4. create State for Universal Provider and tronService
   const [provider, setProvider] = useState<UniversalProvider | null>(null);
   const [tronService, setTronService] = useState<TronService | null>(null);
+  const [signMessage, setSignMessage] = useState<string | null>(null);
 
 
   // 5. initialize Universal Provider onLoad
@@ -42,12 +44,12 @@ const App = () => {
           icons: ["https://avatars.githubusercontent.com/u/37784886"],
         },
       });
-        
+
       setProvider(providerValue);
     }
-    
+
     setOnInitProvider();
-    
+
   }, []);
 
   // 6. set tronService and address on setProvider
@@ -71,9 +73,12 @@ const App = () => {
 
       setBalance(res!);
     }
-    
-    if (!isConnected) return; 
+
+    if (!isConnected) return;
     getBalanceInit()
+    getSignMessage(address!).then((res) => {
+      setSignMessage(res.message);
+    });
   }, [isConnected, tronService]);
 
   // 8. handle connect event
@@ -112,12 +117,21 @@ const App = () => {
 
   // 10. handle get Balance, signMessage and sendTransaction
   const handleSign = async () => {
-    console.log("signing");
-    const res = await tronService!.signMessage(
-      `Can i have authorize this request pls - ${Date.now()}`,
-      address!
-    );
-    console.log("result sign: ",res);
+    const tronWeb = tronService!.getTronWeb()
+
+    try {
+      const res = await tronService!.signMessage(
+          signMessage!,
+          address!
+      );
+
+      console.log("result sign: ",res);
+
+      await verifySignMessage(address!, signMessage!, res.result);
+
+    } catch (error) {
+        console.log("error sign: ", error);
+    }
   };
 
   const handleGetBalance = async () => {
@@ -143,7 +157,7 @@ const App = () => {
           </p>
           <div className="btn-container">
           <button onClick={handleGetBalance}>get Balance</button>
-            <button onClick={handleSign}>Sign MSG</button>
+            <button disabled={!signMessage} onClick={handleSign}>Sign MSG</button>
             <button onClick={handleSendTransaction}>Send Transaction</button>
             <button onClick={disconnect}>Disconnect</button>
           </div>
@@ -151,9 +165,6 @@ const App = () => {
       ) : (
         <button onClick={connect}>Connect</button>
       )}
-      <div className="circle">
-        <a href="https://github.com/WalletConnect/web-examples/tree/main/dapps/universal-provider-tron" target="_blank"><img src="/github.png" alt="GitHub" width="50" /></a>
-      </div>
     </div>
   );
 };

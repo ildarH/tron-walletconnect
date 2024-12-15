@@ -1,5 +1,5 @@
 import UniversalProvider from "@walletconnect/universal-provider";
-import TronWeb from "tronweb";
+import {TronWeb} from "tronweb";
 
 export enum TronChains {
   Mainnet = "0x2b6653dc",
