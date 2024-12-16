@@ -1,5 +1,5 @@
 import UniversalProvider from "@walletconnect/universal-provider";
-import { WalletConnectModal } from "@walletconnect/modal";
+import { Web3Modal } from '@web3modal/standalone'
 import { useEffect, useState } from "react";
 import { TronService, TronChains } from "./utils/tronService";
 import {getSignMessage, verifySignMessage} from "./api";
@@ -16,9 +16,11 @@ const chains = [`tron:${TronChains.Mainnet}`];
 const methods = ["tron_signMessage", "tron_signTransaction"];
 
 // 3. create modal instance
-const modal = new WalletConnectModal({
+const modal = new Web3Modal({
   projectId,
-  chains,
+  standaloneChains: chains,
+  themeMode: 'dark',
+  walletConnectVersion: 2
 });
 
 type VerificationDetails = {
@@ -115,10 +117,11 @@ const App = () => {
       setAddress(provider.session?.namespaces.tron?.accounts[0].split(":")[2]!);
 
       setIsConnected(true);
-    } catch {
-      console.log("Something went wrong, request cancelled");
+    } catch (error) {
+      console.error("Connection error:", error);
+    } finally {
+      modal.closeModal();
     }
-    modal.closeModal();
   };
 
   // 9. handle disconnect event
