@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     react(), 
     nodePolyfills({
-      include: ['buffer', 'crypto', 'util', 'stream'],
+      include: ['buffer', 'crypto', 'util', 'stream', 'vm'],
     }),
     commonjs({
       transformMixedEsModules: true,
