@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import commonjs from '@rollup/plugin-commonjs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vitejs.dev/config/
@@ -8,6 +9,10 @@ export default defineConfig({
     react(), 
     nodePolyfills({
       include: ['buffer', 'crypto', 'util', 'stream'],
+    }),
+    commonjs({
+      transformMixedEsModules: true,
+      ignore: ['axios']
     }),
   ],
   build: {
@@ -22,11 +27,11 @@ export default defineConfig({
       process: 'process/browser',
       stream: 'stream-browserify',
       util: 'util',
+      zlib: 'browserify-zlib',
     },
   },
   define: {
     'process.env': {},
-    global: {},
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -34,6 +39,7 @@ export default defineConfig({
         global: 'globalThis',
       },
     },
+    include: [],
   },
   server: {
     host: true,
