@@ -17,16 +17,18 @@
     "@walletconnect/types": "2.14.0",
     "@walletconnect/universal-provider": "2.14.0",
     "@walletconnect/utils": "2.14.0",
+    "axios": "^1.6.2",
     "bs58": "^5.0.0",
     "crypto-browserify": "^3.12.0",
+    "ethers": "^6.13.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tronweb": "6.0.0-beta.4",
-    "tweetnacl": "^1.0.3",
-    "ethers": "^6.13.4"
+    "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "@daochild/tronweb-typescript": "^1.1.2",
+    "@rollup/plugin-commonjs": "^25.0.0",
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.4.1",
