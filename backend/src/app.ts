@@ -1,12 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import { config } from './config/config';
-import { specs } from './config/swagger';
-import { errorMiddleware } from './middleware/error.middleware';
-import tronRoutes from './modules/tron/tron.routes';
+import { config } from './config/config.js';
+import { specs } from './config/swagger.js';
+import { errorMiddleware } from './middleware/error.middleware.js';
+import tronRoutes from './modules/tron/tron.routes.js';
 
-import { corsOptions } from './config/cors';
+import { corsOptions } from './config/cors.js';
 
 const app = express();
 
