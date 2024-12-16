@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { tronService } from './tron.service'
+import { tronService } from './tron.service.js'
 
 const MESSAGE = 'This is a message to be signed for Tron'
 

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { tronController } from './tron.controller'
+import { tronController } from './tron.controller.js'
 
 const router = Router()
 
